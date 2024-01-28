@@ -80,9 +80,12 @@ done
 # remove tracer (not needed for synthesis)
 rm -f "$LR_SYNTH_OUT_DIR"/generated/ibex_tracer.v
 
+###############################################
+### Hier latch statt register file loeschen ###
+###############################################
 # remove the FPGA & register-based register file (because we will use the
 # latch-based one instead)
-rm -f "$LR_SYNTH_OUT_DIR"/generated/ibex_register_file_ff.v
+rm -f "$LR_SYNTH_OUT_DIR"/generated/ibex_register_file_latch.v ### Hier
 rm -f "$LR_SYNTH_OUT_DIR"/generated/ibex_register_file_fpga.v
 
 yosys -c ./tcl/yosys_run_synth.tcl |& teelog syn || {
