@@ -58,7 +58,12 @@ if { $lr_synth_timing_run } {
 }
 
 yosys "clean"
-yosys "write_verilog $lr_synth_netlist_out"
+
+yosys "select *$lr_synth_top_module*"
+yosys "write_verilog -selected -simple-lhs $lr_synth_netlist_out"
+
+yosys "select *ibex_alu*"
+yosys "write_verilog -selected -simple-lhs $lr_synth_submodule_netlist_out"
 
 if { $lr_synth_timing_run } {
   # Produce netlist that OpenSTA can use
