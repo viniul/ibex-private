@@ -44,10 +44,13 @@ yosys "opt -purge"
 yosys "write_verilog $lr_synth_pre_map_out"
 
 # Map latch primitives onto latch cells
+yosys "flatten"
+yosys "splitnets -ports"
 yosys "techmap -map rtl/latch_map.v"
 
 yosys "dfflibmap -liberty $lr_synth_cell_library_path"
 yosys "opt"
+
 
 set yosys_abc_clk_period [expr $lr_synth_clk_period - $lr_synth_abc_clk_uprate]
 
@@ -60,9 +63,11 @@ if { $lr_synth_timing_run } {
 yosys "clean"
 
 yosys "select *$lr_synth_top_module*"
+yosys "write_verilog -selected -simple-lhs -noattr $lr_synth_netlist_noattr_out"
 yosys "write_verilog -selected -simple-lhs $lr_synth_netlist_out"
 
 yosys "select *ibex_alu*"
+yosys "write_verilog -selected -simple-lhs -noattr $lr_synth_submodule_netlist_noattr_out"
 yosys "write_verilog -selected -simple-lhs $lr_synth_submodule_netlist_out"
 
 if { $lr_synth_timing_run } {

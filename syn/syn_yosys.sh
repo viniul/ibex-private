@@ -92,10 +92,3 @@ yosys -c ./tcl/yosys_run_synth.tcl |& teelog syn || {
     error "Failed to synthesize RTL with Yosys"
 }
 
-sta ./tcl/sta_run_reports.tcl |& teelog sta || {
-    error "Failed to run static timing analysis"
-}
-
-./translate_timing_rpts.sh
-
-python/get_kge.py "$LR_SYNTH_CELL_LIBRARY_PATH" "$LR_SYNTH_OUT_DIR"/reports/area.rpt
