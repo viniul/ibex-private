@@ -17,5 +17,19 @@ foreach path_group $lr_synth_path_group_list {
   timing_report $path_group $path_group_rpt_file $lr_synth_sta_paths_per_group
 }
 
-exit
+set pinlist [get_pins *]
+foreach pin_iter $pinlist {
+  puts $pin_iter
+  set pin_name [get_property $pin_iter name]
+  puts $pin_name
+  set pin_edges [get_timing_edges -from $pin_iter]
 
+  foreach edge_iter $pin_edges {
+    puts [get_property $edge_iter full_name]
+    puts [get_property $edge_iter delay_max_fall]
+    puts ""
+  }
+}
+
+
+exit

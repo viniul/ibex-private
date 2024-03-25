@@ -19,32 +19,32 @@
 # bit of external logic on the inputs and outputs but not much before they reach
 # a flop.
 set lr_synth_outputs [list {instr_req_o   70.0} \
-                           {instr_addr_o  70.0} \
+                           {instr_addr_o*  70.0} \
                            {data_req_o    70.0} \
                            {data_we_o     70.0} \
-                           {data_be_o     70.0} \
-                           {data_addr_o   70.0} \
-                           {data_wdata_o  70.0} \
+                           {data_be_o*     70.0} \
+                           {data_addr_o*   70.0} \
+                           {data_wdata_o*  70.0} \
                            {core_sleep_o  80.0}]
 
 set lr_synth_inputs [list {test_en_i      0.0 } \
-                          {hart_id_i      0.0 } \
-                          {boot_addr_i    0.0 } \
+                          {hart_id_i*      0.0 } \
+                          {boot_addr_i*    0.0 } \
                           {instr_gnt_i    30.0} \
                           {instr_rvalid_i 30.0} \
-                          {instr_rdata_i  30.0} \
+                          {instr_rdata_i*  30.0} \
                           {instr_err_i    30.0} \
                           {data_gnt_i     30.0} \
                           {data_rvalid_i  30.0} \
-                          {data_rdata_i   30.0} \
+                          {data_rdata_i*   30.0} \
                           {data_err_i     30.0} \
                           {irq_software_i 10.0} \
                           {irq_timer_i    10.0} \
                           {irq_external_i 10.0} \
-                          {irq_fast_i     10.0} \
+                          {irq_fast_i*     10.0} \
                           {irq_nm_i       10.0} \
                           {debug_req_i    10.0} \
-                          {fetch_enable_i 0.0 }]
+                          {fetch_enable_i* 0.0 }]
 
 # clock and reset IO names (at top-level)
 set lr_synth_clk_input clk_i
