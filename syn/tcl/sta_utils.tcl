@@ -39,6 +39,20 @@ proc timing_report {path_group rpt_out path_count} {
   set paths [find_timing_paths -group_count $path_count -path_group $path_group]
   set sta_csv_out [open $sta_csv_out_filename "w"]
 
+  #set allDpins [get_pins -filter name==D *]
+  #set allQpins [get_pins -filter name==Q *]
+  #puts $sta_csv_out "HELLOWORLD"
+  #foreach dpin $allDpins {
+  #  foreach qpin $allQpins {
+  #    set path [find_timing_paths -to $dpin -from $qpin  -sort_by_slack]
+  #    if {$path eq ""} continue
+  #    set startpoint_name [get_property [get_property $path startpoint] full_name] 
+  #    set endpoint_name [get_property [get_property $path endpoint] full_name] 
+  #    set slack [get_property $path slack] 
+  #    puts $sta_csv_out [format "$startpoint_name,$endpoint_name,%.4f" $slack]
+  #  }
+  #}
+
   foreach path $paths {
     set startpoint_name [get_property [get_property $path startpoint] full_name]
     set endpoint_name [get_property [get_property $path endpoint] full_name]
