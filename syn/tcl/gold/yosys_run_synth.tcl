@@ -70,6 +70,12 @@ yosys "select *SYNTH_SUBMODULE*"
 yosys "write_verilog -selected -simple-lhs -noattr $lr_synth_submodule_netlist_noattr_out"
 yosys "write_verilog -selected -simple-lhs $lr_synth_submodule_netlist_out"
 
+yosys "select -clear"
+yosys "setattr -mod -unset keep_hierarchy"
+yosys "setattr -unset keep_hierarchy"
+yosys "flatten"
+yosys "write_verilog $lr_synth_flattened_out"
+
 if { $lr_synth_timing_run } {
   # Produce netlist that OpenSTA can use
   yosys "setundef -zero"
