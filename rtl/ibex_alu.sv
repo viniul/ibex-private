@@ -6,7 +6,7 @@
 /**
  * Arithmetic logic unit
  */
-
+(* keep_hierarchy *)
 module ibex_alu #(
   parameter ibex_pkg::rv32b_e RV32B = ibex_pkg::RV32BNone
 ) (

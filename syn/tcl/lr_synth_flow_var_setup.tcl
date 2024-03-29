@@ -38,8 +38,8 @@ if { $lr_synth_timing_run } {
   set sta_netlist_out_default [string range $lr_synth_netlist_out 0 [expr [string last ".v" $lr_synth_netlist_out] - 1]]
   set sta_netlist_out_default "$sta_netlist_out_default.sta.v"
   set_flow_var sta_netlist_out $sta_netlist_out_default "STA netlist out"
-  set_flow_var sta_paths_per_group 1000 "STA paths reported per group"
-  set_flow_var sta_overall_paths 1000 "STA paths reported in overall report"
+  set_flow_var sta_paths_per_group 1000000 "STA paths reported per group"
+  set_flow_var sta_overall_paths 1000000 "STA paths reported in overall report"
   puts "clock period: $lr_synth_clk_period ps"
 
   if { $lr_synth_abc_clk_uprate > $lr_synth_clk_period } {

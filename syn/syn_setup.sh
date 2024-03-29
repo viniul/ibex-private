@@ -20,5 +20,6 @@ export LR_SYNTH_FLATTEN=1
 
 # SETUP CELL LIBRARY PATH
 # Uncomment the lines below and set the path to an appropriate .lib file
-export LR_SYNTH_CELL_LIBRARY_PATH=$(realpath ../../../../tech_libraries/NanGate_15nm/NanGate_15nm_OCL_typical_conditional_nldm.lib)
+# export LR_SYNTH_CELL_LIBRARY_PATH=$(realpath ../../../../tech_libraries/NanGate_15nm/NanGate_15nm_OCL_typical_conditional_nldm.lib)
+export LR_SYNTH_CELL_LIBRARY_PATH=$(realpath ../../../../tech_libraries/nangate45/lib/NangateOpenCellLibrary_typical_nocomplex.lib)
 export LR_SYNTH_CELL_LIBRARY_NAME=nangate
