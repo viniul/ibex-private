@@ -114,6 +114,7 @@ corrector corr_mod (.IN(IN), .SYN(SYN), .OUT(corrector_out));
 
 endmodule
 
+(* keep_hierarchy *)
 module ibex_register_file_ff #(
   parameter bit                   RV32E             = 0,
   parameter int unsigned          DataWidth         = 32,
