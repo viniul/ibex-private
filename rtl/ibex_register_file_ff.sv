@@ -10,10 +10,115 @@
  * This register file is based on flip flops. Use this register file when
  * targeting FPGA synthesis or Verilator simulation.
  */
+module enc_top (
+    input [31:0] IN,
+    output reg [38:0] OUT,
+    input clk
+);
 
+    always @(*) begin
+       OUT[31:0] <= IN[31:0];
+       OUT[32] <= IN[0] ^ IN[1] ^ IN[2] ^ IN[3] ^ IN[4] ^ IN[5] ^ IN[6] ^ IN[7] ^ IN[8] ^ IN[13] ^ IN[17] ^ IN[26] ^ IN[27] ^ IN[29];
+       OUT[33] <= IN[0] ^ IN[1] ^ IN[2] ^ IN[3] ^ IN[4] ^ IN[12] ^ IN[16] ^ IN[18] ^ IN[21] ^ IN[22] ^ IN[23] ^ IN[24] ^ IN[25] ^ IN[28];
+       OUT[34] <= IN[0] ^ IN[5] ^ IN[6] ^ IN[7] ^ IN[8] ^ IN[11] ^ IN[15] ^ IN[18] ^ IN[19] ^ IN[21] ^ IN[22] ^ IN[30] ^ IN[31];
+       OUT[35] <= IN[1] ^ IN[5] ^ IN[10] ^ IN[14] ^ IN[18] ^ IN[19] ^ IN[20] ^ IN[23] ^ IN[24] ^ IN[26] ^ IN[27] ^ IN[28] ^ IN[29] ^ IN[30];
+       OUT[36] <= IN[2] ^ IN[6] ^ IN[9] ^ IN[14] ^ IN[15] ^ IN[16] ^ IN[17] ^ IN[19] ^ IN[20] ^ IN[21] ^ IN[23] ^ IN[25] ^ IN[29] ^ IN[31];
+       OUT[37] <= IN[3] ^ IN[7] ^ IN[9] ^ IN[10] ^ IN[11] ^ IN[12] ^ IN[13] ^ IN[20] ^ IN[22] ^ IN[24] ^ IN[25] ^ IN[27] ^ IN[31];
+       OUT[38] <= IN[4] ^ IN[8] ^ IN[9] ^ IN[10] ^ IN[11] ^ IN[12] ^ IN[13] ^ IN[14] ^ IN[15] ^ IN[16] ^ IN[17] ^ IN[26] ^ IN[28] ^ IN[30];
+    end
+endmodule
+
+module corrector (input [38:0] IN,
+    input [6:0] SYN,
+    output reg [38:0] OUT
+);
+
+reg [38:0] LOC;
+
+    always @(*) begin
+       case (SYN)
+           7'b0000111: LOC <= 39'h00_0000_0001;
+           7'b0001011: LOC <= 39'h00_0000_0002;
+           7'b0010011: LOC <= 39'h00_0000_0004;
+           7'b0100011: LOC <= 39'h00_0000_0008;
+           7'b1000011: LOC <= 39'h00_0000_0010;
+           7'b0001101: LOC <= 39'h00_0000_0020;
+           7'b0010101: LOC <= 39'h00_0000_0040;
+           7'b0100101: LOC <= 39'h00_0000_0080;
+           7'b1000101: LOC <= 39'h00_0000_0100;
+           7'b1110000: LOC <= 39'h00_0000_0200;
+           7'b1101000: LOC <= 39'h00_0000_0400;
+           7'b1100100: LOC <= 39'h00_0000_0800;
+           7'b1100010: LOC <= 39'h00_0000_1000;
+           7'b1100001: LOC <= 39'h00_0000_2000;
+           7'b1011000: LOC <= 39'h00_0000_4000;
+           7'b1010100: LOC <= 39'h00_0000_8000;
+           7'b1010010: LOC <= 39'h00_0001_0000;
+           7'b1010001: LOC <= 39'h00_0002_0000;
+           7'b0001110: LOC <= 39'h00_0004_0000;
+           7'b0011100: LOC <= 39'h00_0008_0000;
+           7'b0111000: LOC <= 39'h00_0010_0000;
+           7'b0010110: LOC <= 39'h00_0020_0000;
+           7'b0100110: LOC <= 39'h00_0040_0000;
+           7'b0011010: LOC <= 39'h00_0080_0000;
+           7'b0101010: LOC <= 39'h00_0100_0000;
+           7'b0110010: LOC <= 39'h00_0200_0000;
+           7'b1001001: LOC <= 39'h00_0400_0000;
+           7'b0101001: LOC <= 39'h00_0800_0000;
+           7'b1001010: LOC <= 39'h00_1000_0000;
+           7'b0011001: LOC <= 39'h00_2000_0000;
+           7'b1001100: LOC <= 39'h00_4000_0000;
+           7'b0110100: LOC <= 39'h00_8000_0000;
+           7'b0000001: LOC <= 39'h01_0000_0000;
+           7'b0000010: LOC <= 39'h02_0000_0000;
+           7'b0000100: LOC <= 39'h04_0000_0000;
+           7'b0001000: LOC <= 39'h08_0000_0000;
+           7'b0010000: LOC <= 39'h10_0000_0000;
+           7'b0100000: LOC <= 39'h20_0000_0000;
+           7'b1000000: LOC <= 39'h40_0000_0000;
+           default: LOC <= 0;
+        endcase
+       OUT <= LOC ^ IN;
+    end
+endmodule
+
+
+module dec_top (input [38:0] IN,
+    output wire [31:0] OUT,
+    output reg DBL,
+    input clk
+);
+
+    wire [6:0] CHK;
+    reg ERR;
+    reg [6:0] SYN;
+    assign CHK = IN[38:32];
+
+    always @(*) begin
+       SYN[0] <= IN[0] ^ IN[1] ^ IN[2] ^ IN[3] ^ IN[4] ^ IN[5] ^ IN[6] ^ IN[7] ^ IN[8] ^ IN[13] ^ IN[17] ^ IN[26] ^ IN[27] ^ IN[29] ^ CHK[0];
+       SYN[1] <= IN[0] ^ IN[1] ^ IN[2] ^ IN[3] ^ IN[4] ^ IN[12] ^ IN[16] ^ IN[18] ^ IN[21] ^ IN[22] ^ IN[23] ^ IN[24] ^ IN[25] ^ IN[28] ^ CHK[1];
+       SYN[2] <= IN[0] ^ IN[5] ^ IN[6] ^ IN[7] ^ IN[8] ^ IN[11] ^ IN[15] ^ IN[18] ^ IN[19] ^ IN[21] ^ IN[22] ^ IN[30] ^ IN[31] ^ CHK[2];
+       SYN[3] <= IN[1] ^ IN[5] ^ IN[10] ^ IN[14] ^ IN[18] ^ IN[19] ^ IN[20] ^ IN[23] ^ IN[24] ^ IN[26] ^ IN[27] ^ IN[28] ^ IN[29] ^ IN[30] ^ CHK[3];
+       SYN[4] <= IN[2] ^ IN[6] ^ IN[9] ^ IN[14] ^ IN[15] ^ IN[16] ^ IN[17] ^ IN[19] ^ IN[20] ^ IN[21] ^ IN[23] ^ IN[25] ^ IN[29] ^ IN[31] ^ CHK[4];
+       SYN[5] <= IN[3] ^ IN[7] ^ IN[9] ^ IN[10] ^ IN[11] ^ IN[12] ^ IN[13] ^ IN[20] ^ IN[22] ^ IN[24] ^ IN[25] ^ IN[27] ^ IN[31] ^ CHK[5];
+       SYN[6] <= IN[4] ^ IN[8] ^ IN[9] ^ IN[10] ^ IN[11] ^ IN[12] ^ IN[13] ^ IN[14] ^ IN[15] ^ IN[16] ^ IN[17] ^ IN[26] ^ IN[28] ^ IN[30] ^ CHK[6];
+
+       ERR <= |SYN;
+       DBL <= ~^SYN & ERR;
+    end
+
+wire [38:0] corrector_out;
+assign OUT = corrector_out[31:0];
+
+corrector corr_mod (.IN(IN), .SYN(SYN), .OUT(corrector_out));
+
+endmodule
+
+(* keep_hierarchy *)
 module ibex_register_file_ff #(
   parameter bit                   RV32E             = 0,
   parameter int unsigned          DataWidth         = 32,
+  parameter int unsigned          ECCDataWidth         = 39,
   parameter bit                   DummyInstructions = 0,
   parameter bit                   WrenCheck         = 0,
   parameter bit                   RdataMuxCheck     = 0,
@@ -48,7 +153,7 @@ module ibex_register_file_ff #(
   localparam int unsigned ADDR_WIDTH = RV32E ? 4 : 5;
   localparam int unsigned NUM_WORDS  = 2**ADDR_WIDTH;
 
-  logic [DataWidth-1:0] rf_reg   [NUM_WORDS];
+  logic [ECCDataWidth-1:0] rf_reg   [NUM_WORDS];
   logic [NUM_WORDS-1:0] we_a_dec;
 
   logic oh_raddr_a_err, oh_raddr_b_err, oh_we_err;
@@ -90,148 +195,41 @@ module ibex_register_file_ff #(
     assign oh_we_err = 1'b0;
   end
 
+  wire [38:0] encoded_wdata_a_i;
+  enc_top w_encoder(wdata_a_i, encoded_wdata_a_i, clk);
+
+  always @(posedge clk)
+    if (wen) regs[~waddr[4:0]] <= encoded_wdata;
+
+  wire due_1;
+  dec_top d1_decoder(rf_reg[raddr_a_i], rdata_a_o, due1, clk);
+
+  wire due_2;
+  dec_top d2_decoder(rf_reg[raddr_b_i], rdata_b_o, due2, clk);
+
   // No flops for R0 as it's hard-wired to 0
   for (genvar i = 1; i < NUM_WORDS; i++) begin : g_rf_flops
-    logic [DataWidth-1:0] rf_reg_q;
+    logic [ECCDataWidth-1:0] rf_reg_q;
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         rf_reg_q <= WordZeroVal;
       end else if (we_a_dec[i]) begin
-        rf_reg_q <= wdata_a_i;
+        rf_reg_q <= encoded_wdata_a_i;
       end
     end
 
     assign rf_reg[i] = rf_reg_q;
   end
 
-  // With dummy instructions enabled, R0 behaves as a real register but will always return 0 for
-  // real instructions.
-  if (DummyInstructions) begin : g_dummy_r0
-    // SEC_CM: CTRL_FLOW.UNPREDICTABLE
-    logic                 we_r0_dummy;
-    logic [DataWidth-1:0] rf_r0_q;
+  logic unused_dummy_instr;
+  assign unused_dummy_instr = dummy_instr_id_i ^ dummy_instr_wb_i;
 
-    // Write enable for dummy R0 register (waddr_a_i will always be 0 for dummy instructions)
-    assign we_r0_dummy = we_a_i & dummy_instr_wb_i;
+  // R0 is nil
+  assign rf_reg[0] = WordZeroVal;
 
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        rf_r0_q <= WordZeroVal;
-      end else if (we_r0_dummy) begin
-        rf_r0_q <= wdata_a_i;
-      end
-    end
-
-    // Output the dummy data for dummy instructions, otherwise R0 reads as zero
-    assign rf_reg[0] = dummy_instr_id_i ? rf_r0_q : WordZeroVal;
-
-  end else begin : g_normal_r0
-    logic unused_dummy_instr;
-    assign unused_dummy_instr = dummy_instr_id_i ^ dummy_instr_wb_i;
-
-    // R0 is nil
-    assign rf_reg[0] = WordZeroVal;
-  end
-
-  if (RdataMuxCheck) begin : gen_rdata_mux_check
-    // Encode raddr_a/b into one-hot encoded signals.
-    logic [NUM_WORDS-1:0] raddr_onehot_a, raddr_onehot_b;
-    logic [NUM_WORDS-1:0] raddr_onehot_a_buf, raddr_onehot_b_buf;
-    prim_onehot_enc #(
-      .OneHotWidth(NUM_WORDS)
-    ) u_prim_onehot_enc_raddr_a (
-      .in_i  (raddr_a_i),
-      .en_i  (1'b1),
-      .out_o (raddr_onehot_a)
-    );
-
-    prim_onehot_enc #(
-      .OneHotWidth(NUM_WORDS)
-    ) u_prim_onehot_enc_raddr_b (
-      .in_i  (raddr_b_i),
-      .en_i  (1'b1),
-      .out_o (raddr_onehot_b)
-    );
-
-    // Buffer the one-hot encoded signals so that the checkers
-    // are not optimized.
-    prim_buf #(
-      .Width(NUM_WORDS)
-    ) u_prim_buf_raddr_a (
-      .in_i (raddr_onehot_a),
-      .out_o(raddr_onehot_a_buf)
-    );
-
-    prim_buf #(
-      .Width(NUM_WORDS)
-    ) u_prim_buf_raddr_b (
-      .in_i (raddr_onehot_b),
-      .out_o(raddr_onehot_b_buf)
-    );
-
-    // SEC_CM: DATA_REG_SW.GLITCH_DETECT
-    // Check the one-hot encoded signals for glitches.
-    prim_onehot_check #(
-      .AddrWidth(ADDR_WIDTH),
-      .OneHotWidth(NUM_WORDS),
-      .AddrCheck(1),
-      // When AddrCheck=1 also EnableCheck needs to be 1.
-      .EnableCheck(1)
-    ) u_prim_onehot_check_raddr_a (
-      .clk_i,
-      .rst_ni,
-      .oh_i   (raddr_onehot_a_buf),
-      .addr_i (raddr_a_i),
-      // Set enable=1 as address is always valid.
-      .en_i   (1'b1),
-      .err_o  (oh_raddr_a_err)
-    );
-
-    prim_onehot_check #(
-      .AddrWidth(ADDR_WIDTH),
-      .OneHotWidth(NUM_WORDS),
-      .AddrCheck(1),
-      // When AddrCheck=1 also EnableCheck needs to be 1.
-      .EnableCheck(1)
-    ) u_prim_onehot_check_raddr_b (
-      .clk_i,
-      .rst_ni,
-      .oh_i   (raddr_onehot_b_buf),
-      .addr_i (raddr_b_i),
-      // Set enable=1 as address is always valid.
-      .en_i   (1'b1),
-      .err_o  (oh_raddr_b_err)
-    );
-
-    // MUX register to rdata_a/b_o according to raddr_a/b_onehot.
-    prim_onehot_mux  #(
-      .Width(DataWidth),
-      .Inputs(NUM_WORDS)
-    ) u_rdata_a_mux (
-      .clk_i,
-      .rst_ni,
-      .in_i  (rf_reg),
-      .sel_i (raddr_onehot_a),
-      .out_o (rdata_a_o)
-    );
-
-    prim_onehot_mux  #(
-      .Width(DataWidth),
-      .Inputs(NUM_WORDS)
-    ) u_rdata_b_mux (
-      .clk_i,
-      .rst_ni,
-      .in_i  (rf_reg),
-      .sel_i (raddr_onehot_b),
-      .out_o (rdata_b_o)
-    );
-  end else begin : gen_no_rdata_mux_check
-    assign rdata_a_o = rf_reg[raddr_a_i];
-    assign rdata_b_o = rf_reg[raddr_b_i];
-    assign oh_raddr_a_err = 1'b0;
-    assign oh_raddr_b_err = 1'b0;
-  end
+  assign oh_raddr_a_err = 1'b0;
+  assign oh_raddr_b_err = 1'b0;
 
   assign err_o = oh_raddr_a_err || oh_raddr_b_err || oh_we_err;
 
