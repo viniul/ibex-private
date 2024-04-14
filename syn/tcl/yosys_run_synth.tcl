@@ -66,7 +66,7 @@ yosys "select *$lr_synth_top_module*"
 yosys "write_verilog -selected -simple-lhs -noattr $lr_synth_netlist_noattr_out"
 yosys "write_verilog -selected -simple-lhs $lr_synth_netlist_out"
 
-set synth_submodule "ibex_register"
+set synth_submodule "ibex_loadstore"
 
 if { $synth_submodule != "" } {
    puts "Doing submodule $synth_submodule"

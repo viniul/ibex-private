@@ -10,9 +10,7 @@
  * paths to the instruction cache.
  */
 (* keep_hierarchy *)
-module ibex_prefetch_buffer #(
-  parameter bit ResetAll        = 1'b0
-) (
+module ibex_prefetch_buffer  (
   input  logic        clk_i,
   input  logic        rst_ni,
 
@@ -88,7 +86,7 @@ module ibex_prefetch_buffer #(
 
   ibex_fetch_fifo #(
     .NUM_REQS (NUM_REQS),
-    .ResetAll (ResetAll)
+    .ResetAll (1'b0)
   ) fifo_i (
       .clk_i                 ( clk_i             ),
       .rst_ni                ( rst_ni            ),
@@ -148,21 +146,11 @@ module ibex_prefetch_buffer #(
   assign stored_addr_d = instr_addr;
 
   // CPU resets with a branch, so no need to reset these addresses
-  if (ResetAll) begin : g_stored_addr_ra
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        stored_addr_q <= '0;
-      end else if (stored_addr_en) begin
-        stored_addr_q <= stored_addr_d;
-      end
-    end
-  end else begin : g_stored_addr_nr
     always_ff @(posedge clk_i) begin
       if (stored_addr_en) begin
         stored_addr_q <= stored_addr_d;
       end
     end
-  end
   // 2. fetch_addr_q
 
   // Update on a branch or as soon as a request is issued
@@ -172,21 +160,11 @@ module ibex_prefetch_buffer #(
                         // Current address + 4
                         {{29{1'b0}},(valid_new_req & ~valid_req_q),2'b00};
 
-  if (ResetAll) begin : g_fetch_addr_ra
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        fetch_addr_q <= '0;
-      end else if (fetch_addr_en) begin
-        fetch_addr_q <= fetch_addr_d;
-      end
-    end
-  end else begin : g_fetch_addr_nr
     always_ff @(posedge clk_i) begin
       if (fetch_addr_en) begin
         fetch_addr_q <= fetch_addr_d;
       end
     end
-  end
 
   // Address mux
   assign instr_addr = valid_req_q ? stored_addr_q :

@@ -747,10 +747,7 @@ module ibex_core import ibex_pkg::*; #(
   assign data_req_o   = data_req_out & ~pmp_req_err[PMP_D];
   assign lsu_resp_err = lsu_load_err | lsu_store_err;
 
-  ibex_load_store_unit #(
-    .MemECC(MemECC),
-    .MemDataWidth(MemDataWidth)
-  ) load_store_unit_i (
+  ibex_loadstore load_store_unit_i (
     .clk_i (clk_i),
     .rst_ni(rst_ni),
 
